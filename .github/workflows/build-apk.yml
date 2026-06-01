@@ -1,7 +1,7 @@
 name: Build Android APK
 on:
   push:
-    branches: [main]
+    branches: 
   workflow_dispatch:
 jobs:
   build:
@@ -12,10 +12,15 @@ jobs:
         with:
           distribution: 'zulu'
           java-version: '17'
+      - uses: android-actions/setup-android@v3
       - uses: subosito/flutter-action@v2
         with:
           flutter-version: '3.22.0'
+          cache: true
+      - run: yes | flutter doctor --android-licenses
       - run: flutter pub get
+        working-directory: myapp
+      - run: flutter pub upgrade --major-versions
         working-directory: myapp
       - run: flutter build apk --release
         working-directory: myapp
