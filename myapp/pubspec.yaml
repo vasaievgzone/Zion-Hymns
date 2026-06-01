@@ -1,8 +1,6 @@
-name: myapp
-description: "A new Flutter project."
-
+name: zion_hymns
+description: "Zion Hymns App"
 publish_to: 'none'
-
 version: 1.0.0+1
 
 environment:
@@ -10,19 +8,13 @@ environment:
 
 dependencies:
   flutter:
-    sdk: ">=3.5.0 <4.0.0"
-  
-  cupertino_icons: ^1.0.6
-  firebase_core: ^4.9.0
-  firebase_auth: ^6.5.1
-  google_sign_in: ^7.2.0
-  cloud_firestore: ^6.4.1
-  shared_preferences: ^2.5.5
-  share_plus: ^13.1.0
+    sdk: flutter
+  store_plus: ^12.0.0
+  # add your other deps here but don't change versions yet
 
 dev_dependencies:
   flutter_test:
-    sdk: ">=3.5.0 <4.0.0"
+    sdk: flutter
   flutter_lints: ^3.0.2
 
 flutter:
