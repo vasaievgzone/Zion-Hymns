@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "726415460666",
+    "project_id": "zion-hymns-cc4a9",
+    "storage_bucket": "zion-hymns-cc4a9.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:726415460666:android:c3f49cd77baaa3169be803",
+        "android_client_info": {
+          "package_name": "com.zion.hymns"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "726415460666-fukq77ut3uvju5nhgifbl4evem6gphld.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.zion.hymns",
+            "certificate_hash": "020c43dfa6645188fa8794c5297d615f534efce0"
+          }
+        },
+        {
+          "client_id": "726415460666-2a4597l9iup1gqm9bm06u2t2q82kiltq.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCsOqacbDBk5J-rYx8itl3KVZhwrI6OI7Y"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "726415460666-2a4597l9iup1gqm9bm06u2t2q82kiltq.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
