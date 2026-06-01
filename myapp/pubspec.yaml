@@ -9,7 +9,6 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  store_plus: ^12.0.0
   # add your other deps here but don't change versions yet
 
 dev_dependencies:
