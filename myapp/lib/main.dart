@@ -143,19 +143,19 @@ class _MyAppState extends State<MyApp> {
 
 class LoginScreen extends StatelessWidget {
   const LoginScreen({super.key});
+
   Future<void> signInWithGoogle(BuildContext context) async {
     try {
       if (kIsWeb) {
         GoogleAuthProvider googleProvider = GoogleAuthProvider();
         await FirebaseAuth.instance.signInWithPopup(googleProvider);
       } else {
-  final GoogleSignIn googleSignIn = GoogleSignIn();
-  final GoogleSignInAccount? googleUser = await googleSignIn.signIn();
-  if (googleUser == null) return;
-  final GoogleSignInAuthentication googleAuth = await googleUser.authentication;
-  final credential = GoogleAuthProvider.credential(idToken: googleAuth.idToken);
-  await FirebaseAuth.instance.signInWithCredential(credential);
-}
+        final GoogleSignIn googleSignIn = GoogleSignIn();
+        final GoogleSignInAccount? googleUser = await googleSignIn.signIn();
+        if (googleUser == null) return;
+        final GoogleSignInAuthentication googleAuth = await googleUser.authentication;
+        final credential = GoogleAuthProvider.credential(idToken: googleAuth.idToken);
+        await FirebaseAuth.instance.signInWithCredential(credential);
       }
     } catch (e) {
       if (context.mounted) {
@@ -165,28 +165,14 @@ class LoginScreen extends StatelessWidget {
       }
     }
   }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const Icon(Icons.music_note, size: 80, color: Colors.deepPurple),
-            const SizedBox(height: 20),
-            const Text('Zion Hymns', style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold)),
-            const SizedBox(height: 40),
-            ElevatedButton.icon(
-              icon: const Icon(Icons.login),
-              label: const Text('Sign in with Google', style: TextStyle(fontSize: 18)),
-              style: ElevatedButton.styleFrom(
-                padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 15),
-                backgroundColor: Colors.deepPurple,
-                foregroundColor: Colors.white,
-              ),
-              onPressed: () => signInWithGoogle(context),
-            ),
-          ],
+        child: ElevatedButton(
+          onPressed: () => signInWithGoogle(context),
+          child: const Text('Sign in with Google'),
         ),
       ),
     );
