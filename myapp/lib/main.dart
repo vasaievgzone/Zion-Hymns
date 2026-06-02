@@ -562,9 +562,12 @@ class _HymnListScreenState extends State<HymnListScreen> {
                         ),
                       )
                     : SingleChildScrollView(
-                        controller: _scrollController,
-                        physics: const BouncingScrollPhysics(),
-                        child: Theme(
+                        scrollDirection: Axis.horizontal,
+                         child: SingleChildScrollView(
+                         controller: _scrollController,
+                         physics: const BouncingScrollPhysics(),
+                         scrollDirection: Axis.vertical,
+                          child: Theme(
                           data: Theme.of(context).copyWith(
                             dividerTheme: const DividerThemeData(color: Colors.black, thickness: 2),
                           ),
@@ -584,6 +587,7 @@ class _HymnListScreenState extends State<HymnListScreen> {
                                   ),
                                 ]),
                               ),
+                          ),
                               DataColumn(
                                 label: Row(mainAxisSize: MainAxisSize.min, children: [
                                   const Text('Year', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
