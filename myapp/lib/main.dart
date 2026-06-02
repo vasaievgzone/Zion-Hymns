@@ -471,6 +471,21 @@ class _HymnListScreenState extends State<HymnListScreen> {
 },
                                           hint: const Text('Select existing hymn'),
                                         ),
+                                        const SizedBox(height: 8),
+
+Wrap(
+  spacing: 8,
+  children: selectedCategories.map((song) {
+    return Chip(
+      label: Text(song),
+      onDeleted: () {
+        setState(() {
+          selectedCategories.remove(song);
+        });
+      },
+    );
+  }).toList(),
+),
                                         DropdownButtonFormField<String>(
                                           value: keyController.text.isEmpty? null : keyController.text,
                                           decoration: const InputDecoration(labelText: 'Key'),
