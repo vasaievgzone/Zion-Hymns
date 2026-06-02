@@ -458,19 +458,53 @@ class _HymnListScreenState extends State<HymnListScreen> {
                                           maxLines: 8,
                                           style: const TextStyle(fontFamily: 'Roboto', fontSize: 16, height: 1.6),
                                         ),
-                                        DropdownButtonFormField<String>(
-                                          value: selectedCategory,
-                                          decoration: const InputDecoration(labelText: 'Related to'),
-                                          items: categories.map((cat) => DropdownMenuItem(value: cat, child: Text(cat))).toList(),
-                                          onChanged: (val) {
-  if (val != null && !selectedCategories.contains(val)) {
-    setState(() {
-      selectedCategories.add(val);
-    });
-  }
-},
-                                          hint: const Text('Select existing hymn'),
-                                        ),
+                                        Column(
+  crossAxisAlignment: CrossAxisAlignment.start,
+  children: [
+    const Text(
+      'Related Songs',
+      style: TextStyle(fontWeight: FontWeight.bold),
+    ),
+
+    const SizedBox(height: 8),
+
+    Wrap(
+      spacing: 6,
+      children: selectedCategories.map((song) {
+        return Chip(
+          label: Text(song),
+          deleteIcon: const Icon(Icons.close),
+          onDeleted: () {
+            setState(() {
+              selectedCategories.remove(song);
+            });
+          },
+        );
+      }).toList(),
+    ),
+
+    DropdownButtonFormField<String>(
+      decoration: const InputDecoration(
+        labelText: 'Add Related Song',
+      ),
+      items: categories.map((cat) {
+        return DropdownMenuItem(
+          value: cat,
+          child: Text(cat),
+        );
+      }).toList(),
+      onChanged: (val) {
+        if (val == null) return;
+
+        setState(() {
+          if (!selectedCategories.contains(val)) {
+            selectedCategories.add(val);
+          }
+        });
+      },
+    ),
+  ],
+),
                                         const SizedBox(height: 8),
 
 Wrap(
