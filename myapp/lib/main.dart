@@ -419,7 +419,7 @@ class _HymnListScreenState extends State<HymnListScreen> {
                         TextEditingController yearController = TextEditingController();
                         TextEditingController chordController = TextEditingController();
                         TextEditingController dedicatedController = TextEditingController();
-                        String? selectedCategory;
+                        List<String> selectedCategories = [];
                         String detectedMode = 'Major';
                         final categoriesSnapshot = await FirebaseFirestore.instance
                           .collection('hymns')
@@ -462,7 +462,13 @@ class _HymnListScreenState extends State<HymnListScreen> {
                                           value: selectedCategory,
                                           decoration: const InputDecoration(labelText: 'Related to'),
                                           items: categories.map((cat) => DropdownMenuItem(value: cat, child: Text(cat))).toList(),
-                                          onChanged: (val) => setState(() => selectedCategory = val),
+                                          onChanged: (val) {
+  if (val != null && !selectedCategories.contains(val)) {
+    setState(() {
+      selectedCategories.add(val);
+    });
+  }
+},
                                           hint: const Text('Select existing hymn'),
                                         ),
                                         DropdownButtonFormField<String>(
