@@ -628,16 +628,7 @@ class _HymnListScreenState extends State<HymnListScreen> {
                                 color: MaterialStateProperty.all(isSelected? Colors.orange.shade100 : null),
                                 cells: [
                                   DataCell(Text('${index + 1}')),
-                                  DataCell(
-                                    InkWell(
-                                      onTap: () => Navigator.push(
-                                        context,
-                                        MaterialPageRoute(builder: (_) => HymnDetailScreen(hymn: hymn, allDocs: docs, currentIndex: index)),
-                                      ),
-                                      child: Text(hymn['title']?? '', style: const TextStyle(fontWeight: FontWeight.w600)),
-                                    ),
-                                  ),
-                                  DataCell(Text(hymn['year']?.toString()?? 'N/A')),
+                                   DataCell(Text(hymn['year']?.toString()?? 'N/A')),
                                   DataCell(Text(hymn['mode']?.toString()?? 'N/A')),
                                   DataCell(Text(hymn['dedicated']?.toString()?? 'N/A')),
                                   DataCell(
