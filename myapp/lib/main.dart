@@ -154,7 +154,10 @@ class LoginScreen extends StatelessWidget {
         final GoogleSignInAccount? googleUser = await googleSignIn.signIn();
         if (googleUser == null) return;
         final GoogleSignInAuthentication googleAuth = await googleUser.authentication;
-        final credential = GoogleAuthProvider.credential(idToken: googleAuth.idToken);
+        final credential = GoogleAuthProvider.credential(
+  accessToken: googleAuth.accessToken,
+  idToken: googleAuth.idToken,
+);
         await FirebaseAuth.instance.signInWithCredential(credential);
       }
     } catch (e) {
