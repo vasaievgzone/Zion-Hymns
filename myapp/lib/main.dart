@@ -520,7 +520,7 @@ Wrap(
                                       chordController.clear();
                                       dedicatedController.clear();
                                       setState(() {
-                                        selectedCategory = null;
+                                        selectedCategories.clear();
                                         detectedMode = 'Major';
                                       });
                                     },
@@ -576,7 +576,7 @@ if (existingSongs.docs.isNotEmpty) {
                                         await FirebaseFirestore.instance.collection('hymns').add({
                                         'title': titleController.text.trim(),
                                         'lyrics': lyricsController.text.trim(),
-                                        'category': selectedCategory,
+                                        'relatedSongs': selectedCategories,
                                         'key': keyController.text.trim(),
                                         'mode': detectedMode,
                                         'year': int.tryParse(yearController.text)?? 0,
