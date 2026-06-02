@@ -506,8 +506,44 @@ Wrap(
                                           keyboardType: TextInputType.number,
                                           inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                                         ),
-                                        controller: dedicatedControlle
-                                    ),
+                                        Autocomplete<String>(
+  optionsBuilder: (textEditingValue) async {
+    if (textEditingValue.text.isEmpty) {
+      return const Iterable<String>.empty();
+    }
+
+    final snap = await FirebaseFirestore.instance
+        .collection('hymns')
+        .get();
+
+    final values = snap.docs
+        .map((d) => d['dedicated']?.toString() ?? '')
+        .where((v) =>
+            v.isNotEmpty &&
+            v.toLowerCase().contains(
+              textEditingValue.text.toLowerCase(),
+            ))
+        .toSet();
+
+    return values;
+  },
+  fieldViewBuilder: (
+    context,
+    controller,
+    focusNode,
+    onFieldSubmitted,
+  ) {
+    dedicatedController = controller;
+
+    return TextField(
+      controller: controller,
+      focusNode: focusNode,
+      decoration: const InputDecoration(
+        labelText: 'Dedicated To',
+      ),
+    );
+  },
+),
                                   ),
                                 ),
                                 actions: [
