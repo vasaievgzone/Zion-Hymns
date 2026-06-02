@@ -485,11 +485,7 @@ class _HymnListScreenState extends State<HymnListScreen> {
                                           keyboardType: TextInputType.number,
                                           inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                                         ),
-                                        TextField(
-                                          controller: dedicatedController,
-                                          decoration: const InputDecoration(labelText: 'Dedicated To'),
-                                        ),
-                                      ],
+                                        controller: dedicatedControlle
                                     ),
                                   ),
                                 ),
