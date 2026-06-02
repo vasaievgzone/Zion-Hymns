@@ -526,44 +526,45 @@ class _HymnListScreenState extends State<HymnListScreen> {
                                           inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                                         ),
                                         Autocomplete<String>(
-                           optionsBuilder: (textEditingValue) async {
-                          if (textEditingValue.text.isEmpty) {
-                            return const Iterable<String>.empty();
-                          }
+  optionsBuilder: (textEditingValue) async {
+    if (textEditingValue.text.isEmpty) {
+      return const Iterable<String>.empty();
+    }
 
-                          final snap = await FirebaseFirestore.instance
-                              .collection('hymns')
-                              .get();
+    final snap = await FirebaseFirestore.instance
+        .collection('hymns')
+        .get();
 
-                                    final values = snap.docs
-                                        .map((d) => d['dedicated']?.toString() ?? '')
-                                        .where((v) =>
-                                            v.isNotEmpty &&
-                                            v.toLowerCase().contains(
-                                              textEditingValue.text.toLowerCase(),
-                                            ))
-                                        .toSet();
+    final values = snap.docs
+        .map((d) => d['dedicated']?.toString() ?? '')
+        .where((v) =>
+            v.isNotEmpty &&
+            v.toLowerCase().contains(
+              textEditingValue.text.toLowerCase(),
+            ))
+        .toSet();
 
-                                    return values;
-                                  },
-                                  fieldViewBuilder: (
-                                    context,
-                                    controller,
-                                    focusNode,
-                                    onFieldSubmitted,
-                                  ) {
-                                    dedicatedController = controller;
+    return values;
+  },
+  fieldViewBuilder: (
+    context,
+    controller,
+    focusNode,
+    onFieldSubmitted,
+  ) {
+    dedicatedController = controller;
 
-                                    return TextField(
-                                      controller: controller,
-                                      focusNode: focusNode,
-                                      decoration: const InputDecoration(
-                                        labelText: 'Dedicated To',
-                                      ),
-                                    );
-                                  },
-                                 ),
-                                    ),
+    return TextField(
+      controller: controller,
+      focusNode: focusNode,
+      decoration: const InputDecoration(
+        labelText: 'Dedicated To',
+      ),
+    );
+  },
+),
+                                  ),
+                                ),
                                 actions: [
                                   TextButton(
                                     onPressed: () {
