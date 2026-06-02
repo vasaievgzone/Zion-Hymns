@@ -508,13 +508,51 @@ class _HymnListScreenState extends State<HymnListScreen> {
                                   TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('Cancel')),
                                   ElevatedButton(
                                     onPressed: () async {
-                                      if (titleController.text.trim().isEmpty || lyricsController.text.trim().isEmpty) {
-                                        ScaffoldMessenger.of(context).showSnackBar(
-                                          const SnackBar(content: Text('Title & Lyrics are mandatory'), backgroundColor: Colors.red),
-                                        );
-                                        return;
-                                      }
-                                      await FirebaseFirestore.instance.collection('hymns').add({
+                                      if (titleController.text.trim().isEmpty ||
+    lyricsController.text.trim().isEmpty) {
+  ScaffoldMessenger.of(context).showSnackBar(
+    const SnackBar(
+      content: Text('Title & Lyrics are mandatory'),
+      backgroundColor: Colors.red,
+    ),
+  );
+  return;
+}
+
+final existingSongs = await FirebaseFirestore.instance
+    .collection('hymns')
+    .where(
+      'title',
+      isEqualTo: titleController.text.trim(),
+    )
+    .get();
+
+if (existingSongs.docs.isNotEmpty) {
+  bool? continueSave = await showDialog<bool>(
+    context: context,
+    builder: (_) => AlertDialog(
+      title: const Text('Song already exists'),
+      content: Text(
+        '"${titleController.text.trim()}" already exists.\n\nDo you want to continue?',
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.pop(context, false),
+          child: const Text('Cancel'),
+        ),
+                          ElevatedButton(
+                                     onPressed: () => Navigator.pop(context, true),
+                                  child: const Text('Continue'),
+                                         ),
+                                         ],
+                                          );
+
+                                      if (continueSave != true) {
+                                     return;
+                              }
+                                            }
+
+                                        await FirebaseFirestore.instance.collection('hymns').add({
                                         'title': titleController.text.trim(),
                                         'lyrics': lyricsController.text.trim(),
                                         'category': selectedCategory,
