@@ -817,15 +817,49 @@ void _shareHymn(Map<String, dynamic> hymn) {
   }
 
   void _showRelatedHymn(String title) async {
-    final snap = await FirebaseFirestore.instance.collection('hymns').where('title', isEqualTo: title).limit(1).get();
-    if (snap.docs.isNotEmpty) {
-      final doc = snap.docs.first;
-      int newIndex = widget.allDocs.indexWhere((d) => d.id == doc.id);
-      if (newIndex!= -1) {
-        _pageController.animateToPage(newIndex, duration: const Duration(milliseconds: 300), curve: Curves.easeInOut);
-      }
-    }
-  }
+  final snap = await FirebaseFirestore.instance
+      .collection('hymns')
+      .where('title', isEqualTo: title)
+      .get();
+
+  if (!mounted) return;
+
+  showModalBottomSheet(
+    context: context,
+    isScrollControlled: true,
+    builder: (context) {
+      return ListView(
+        children: snap.docs.map((doc) {
+          final song = doc.data();
+
+          return ListTile(
+            title: Text(song['title'] ?? ''),
+            subtitle: Text(
+              (song['lyrics'] ?? '').toString().split('\n').take(2).join('\n'),
+              maxLines: 2,
+            ),
+            trailing: const Icon(Icons.arrow_forward),
+            onTap: () {
+              Navigator.pop(context);
+
+              int newIndex = widget.allDocs.indexWhere(
+                (d) => d.id == doc.id,
+              );
+
+              if (newIndex != -1) {
+                _pageController.animateToPage(
+                  newIndex,
+                  duration: const Duration(milliseconds: 300),
+                  curve: Curves.easeInOut,
+                );
+              }
+            },
+          );
+        }).toList(),
+      );
+    },
+  );
+}
 
   List<String> _toList(dynamic data) {
     if (data == null) return [];
@@ -859,7 +893,7 @@ void _shareHymn(Map<String, dynamic> hymn) {
 
   Widget _buildHymnPage(Map<String, dynamic> hymn, String id) {
     List<String> chords = _toList(hymn['chords']);
-    List<String> related = _toList(hymn['category']!= null? [hymn['category']] : []);
+    List<String> related = _toList(hymn['relatedSongs']);
 
     return SingleChildScrollView(
       physics: const BouncingScrollPhysics(),
