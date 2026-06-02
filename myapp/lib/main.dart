@@ -193,7 +193,8 @@ class HymnListScreen extends StatefulWidget {
 
 class _HymnListScreenState extends State<HymnListScreen> {
   final ScrollController _scrollController = ScrollController();
-  final Set<int> _selectedPages = {};
+  final Map<String, int> pageNumbers = {};
+  final Set<String> _selectedPages = {};
   List<QueryDocumentSnapshot> _allHymns = [];
 
   String? _selectedYear;
@@ -217,17 +218,26 @@ class _HymnListScreenState extends State<HymnListScreen> {
   }
 
   void _showFrozenHymns() {
-    if (_selectedPages.isEmpty) return;
-    List<Map<String, dynamic>> frozenHymns = [];
-    for (int pageNum in _selectedPages.toList()..sort()) {
-      if (pageNum - 1 < _allHymns.length) {
-        final hymn = _allHymns[pageNum - 1].data() as Map<String, dynamic>;
-        hymn['id'] = _allHymns[pageNum - 1].id;
-        hymn['pageNum'] = pageNum;
-        frozenHymns.add(hymn);
-      }
-    }
-    showModalBottomSheet(
+  if (_selectedPages.isEmpty) return;
+
+  List<Map<String, dynamic>> frozenHymns = [];
+
+  for (String hymnId in _selectedPages) {
+    final doc = _allHymns.firstWhere(
+      (d) => d.id == hymnId,
+    );
+
+    final hymn = Map<String, dynamic>.from(
+      doc.data() as Map<String, dynamic>,
+    );
+
+    hymn['id'] = doc.id;
+    hymn['pageNum'] = pageNumbers[doc.id];
+
+    frozenHymns.add(hymn);
+  }
+
+      showModalBottomSheet(
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
@@ -374,10 +384,11 @@ class _HymnListScreenState extends State<HymnListScreen> {
                 child: ListTile(
                   leading: const Icon(Icons.logout, color: Colors.red),
                   title: const Text('Logout'),
-                  onTap: () {
-                    Navigator.pop(context);
-                    FirebaseAuth.instance.signOut();
-                  },
+                onTap: () async {
+  Navigator.pop(context);
+  await GoogleSignIn().signOut();
+  await FirebaseAuth.instance.signOut();
+},
                 ),
               ),
             ],
@@ -390,7 +401,32 @@ class _HymnListScreenState extends State<HymnListScreen> {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());
           }
-          _allHymns = snapshot.data!.docs;
+                                                              if (!snapshot.hasData) {
+                                  return const Center(
+                                    child: CircularProgressIndicator(),
+                                  );
+                                }
+
+                                _allHymns = snapshot.data!.docs;
+
+                          _allHymns.sort((a, b) {
+                            final titleA =
+                                ((a.data() as Map<String, dynamic>)['title'] ?? '')
+                                    .toString()
+                                    .toLowerCase();
+
+                            final titleB =
+                                ((b.data() as Map<String, dynamic>)['title'] ?? '')
+                                    .toString()
+                                    .toLowerCase();
+
+                            return titleA.compareTo(titleB);
+                          });
+                            pageNumbers.clear();
+
+                  for (int i = 0; i < _allHymns.length; i++) {
+                    pageNumbers[_allHymns[i].id] = i + 1;
+                  }
 
           var filtered = _allHymns.where((doc) {
             final data = doc.data() as Map<String, dynamic>;
@@ -459,52 +495,52 @@ class _HymnListScreenState extends State<HymnListScreen> {
                                           style: const TextStyle(fontFamily: 'Roboto', fontSize: 16, height: 1.6),
                                         ),
                                         Column(
-  crossAxisAlignment: CrossAxisAlignment.start,
-  children: [
-    const Text(
-      'Related Songs',
-      style: TextStyle(fontWeight: FontWeight.bold),
-    ),
+                                              crossAxisAlignment: CrossAxisAlignment.start,
+                                              children: [
+                                                const Text(
+                                                  'Related Songs',
+                                                  style: TextStyle(fontWeight: FontWeight.bold),
+                                                ),
 
-    const SizedBox(height: 8),
+                                                const SizedBox(height: 8),
 
-    Wrap(
-      spacing: 6,
-      children: selectedCategories.map((song) {
-        return Chip(
-          label: Text(song),
-          deleteIcon: const Icon(Icons.close),
-          onDeleted: () {
-            setState(() {
-              selectedCategories.remove(song);
-            });
-          },
-        );
-      }).toList(),
-    ),
+                                                Wrap(
+                                                  spacing: 6,
+                                                  children: selectedCategories.map((song) {
+                                                    return Chip(
+                                                      label: Text(song),
+                                                      deleteIcon: const Icon(Icons.close),
+                                                      onDeleted: () {
+                                                        setState(() {
+                                                          selectedCategories.remove(song);
+                                                        });
+                                                      },
+                                                    );
+                                                  }).toList(),
+                                                ),
 
-    DropdownButtonFormField<String>(
-      decoration: const InputDecoration(
-        labelText: 'Add Related Song',
-      ),
-      items: categories.map((cat) {
-        return DropdownMenuItem(
-          value: cat,
-          child: Text(cat),
-        );
-      }).toList(),
-      onChanged: (val) {
-        if (val == null) return;
+                                                DropdownButtonFormField<String>(
+                                                  decoration: const InputDecoration(
+                                                    labelText: 'Add Related Song',
+                                                  ),
+                                                  items: categories.map((cat) {
+                                                    return DropdownMenuItem(
+                                                      value: cat,
+                                                      child: Text(cat),
+                                                    );
+                                                  }).toList(),
+                                                  onChanged: (val) {
+                                                    if (val == null) return;
 
-        setState(() {
-          if (!selectedCategories.contains(val)) {
-            selectedCategories.add(val);
-          }
-        });
-      },
-    ),
-  ],
-),
+                                                    setState(() {
+                                                      if (!selectedCategories.contains(val)) {
+                                                        selectedCategories.add(val);
+                                                      }
+                                                    });
+                                                  },
+                                                ),
+                                              ],
+                                            ),
                                                                                 DropdownButtonFormField<String>(
                                           value: keyController.text.isEmpty? null : keyController.text,
                                           decoration: const InputDecoration(labelText: 'Key'),
@@ -563,7 +599,10 @@ class _HymnListScreenState extends State<HymnListScreen> {
                                     );
                                   },
                                  ),
+                                      ],
                                     ),
+                                  ),
+                                ),
                                 actions: [
                                   TextButton(
                                     onPressed: () {
@@ -615,13 +654,13 @@ if (existingSongs.docs.isNotEmpty) {
           onPressed: () => Navigator.pop(context, false),
           child: const Text('Cancel'),
         ),
-                          ElevatedButton(
+                                          ElevatedButton(
                                      onPressed: () => Navigator.pop(context, true),
                                   child: const Text('Continue'),
                                          ),
-                                         ],
+                                              ],
+                                            ),
                                           );
-
                                       if (continueSave != true) {
                                      return;
                               }
@@ -696,7 +735,6 @@ if (existingSongs.docs.isNotEmpty) {
                                   ),
                                 ]),
                               ),
-                          ),
                               DataColumn(
                                 label: Row(mainAxisSize: MainAxisSize.min, children: [
                                   const Text('Year', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
@@ -736,19 +774,25 @@ if (existingSongs.docs.isNotEmpty) {
                               var doc = entry.value;
                               final hymn = doc.data() as Map<String, dynamic>;
                               hymn['id'] = doc.id;
-                              bool isSelected = _selectedPages.contains(index + 1);
+                              bool isSelected = _selectedPages.contains(doc.id);
                               return DataRow(
                                 color: MaterialStateProperty.all(isSelected? Colors.orange.shade100 : null),
                                 cells: [
-                                  DataCell(Text('${index + 1}')),
-                                   DataCell(Text(hymn['year']?.toString()?? 'N/A')),
+                                  DataCell(Text('${pageNumbers[doc.id]}')),
+                                    DataCell(Text(hymn['title']?.toString() ?? 'N/A')),
+                                    DataCell(Text(hymn['year']?.toString()?? 'N/A')),
                                   DataCell(Text(hymn['mode']?.toString()?? 'N/A')),
                                   DataCell(Text(hymn['dedicated']?.toString()?? 'N/A')),
                                   DataCell(
                                     InkWell(
                                       onTap: () => Navigator.push(
                                         context,
-                                        MaterialPageRoute(builder: (_) => HymnDetailScreen(hymn: hymn, allDocs: docs, currentIndex: index)),
+                                    MaterialPageRoute(builder: (_) =>HymnDetailScreen(
+                                      hymn: hymn,
+                                      allDocs: docs,
+                                      currentIndex: index,
+                                      pageNumbers: pageNumbers,
+                                    ))
                                       ),
                                       child: Container(
                                         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
@@ -756,8 +800,7 @@ if (existingSongs.docs.isNotEmpty) {
                                           color: isSelected? Colors.orange : Colors.deepPurple,
                                           borderRadius: BorderRadius.circular(20),
                                         ),
-                                        child: Text(
-                                          '${index + 1}',
+                                        child: Text('${pageNumbers[doc.id] ?? (index + 1)}',
                                           style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
                                         ),
                                       ),
@@ -766,11 +809,12 @@ if (existingSongs.docs.isNotEmpty) {
                                 ],
                               );
                             }).toList(),
-                          ),
-                        ),
-                      ),
-              ),
-            ],
+                          ), // DataTable
+                        ),   // Theme
+                      ),     // Vertical SingleChildScrollView
+                    ),       // Horizontal SingleChildScrollView
+                  ),         // Expanded
+                ],
           );
         },
       ),
@@ -791,12 +835,13 @@ if (existingSongs.docs.isNotEmpty) {
   final Map<String, dynamic> hymn;
   final List<QueryDocumentSnapshot> allDocs;
   final int currentIndex;
-
+  final Map<String, int> pageNumbers;
   const HymnDetailScreen({
     super.key,
     required this.hymn,
     required this.allDocs,
     required this.currentIndex,
+    required this.pageNumbers,
   });
 
   @override
@@ -830,7 +875,7 @@ void _shareHymn(Map<String, dynamic> hymn) {
     TextEditingController controller = TextEditingController(text: hymn[field]?.toString()?? '');
     String? selectedValue;
     if (field == 'key') selectedValue = hymn['key'];
-    else if (field == 'category') selectedValue = hymn['category'];
+    else if (field == 'category') selectedValue = '';
 
     final keys = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
     final categoriesSnapshot = await FirebaseFirestore.instance.collection('hymns').orderBy('title').get();
@@ -949,11 +994,33 @@ void _shareHymn(Map<String, dynamic> hymn) {
     List<String> chords = _toList(hymn['chords']);
     List<String> related = _toList(hymn['relatedSongs']);
 
-    return SingleChildScrollView(
-      physics: const BouncingScrollPhysics(),
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
+    return GestureDetector(
+  onVerticalDragEnd: (details) {
+    if (details.primaryVelocity == null) return;
+
+    // Swipe up → next page
+    if (details.primaryVelocity! < 0 &&
+        currentIndex < widget.allDocs.length - 1) {
+      _pageController.nextPage(
+        duration: const Duration(milliseconds: 300),
+        curve: Curves.easeInOut,
+      );
+    }
+
+    // Swipe down → previous page
+    if (details.primaryVelocity! > 0 &&
+        currentIndex > 0) {
+      _pageController.previousPage(
+        duration: const Duration(milliseconds: 300),
+        curve: Curves.easeInOut,
+      );
+    }
+  },
+  child: SingleChildScrollView(
+    physics: const BouncingScrollPhysics(),
+    child: Padding(
+      padding: const EdgeInsets.all(16),
+      child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             SingleChildScrollView(
@@ -968,8 +1035,8 @@ void _shareHymn(Map<String, dynamic> hymn) {
                   const SizedBox(width: 8),
                   _buildInfoChip('Dedicated', hymn['dedicated']?.toString()?? 'N/A', () => _editField('dedicated', hymn, id)),
                   const SizedBox(width: 8),
-                  _buildInfoChip('Related', hymn['category']?? 'None', () => _editField('category', hymn, id)),
-                ],
+                  _buildInfoChip('Related',related.isEmpty ? 'None' : '${related.length} songs',() {},),
+                ]
               ),
             ),
             const SizedBox(height: 16),
@@ -1019,6 +1086,7 @@ void _shareHymn(Map<String, dynamic> hymn) {
           ],
         ),
       ),
+  ),
     );
   }
 
@@ -1030,26 +1098,38 @@ void _shareHymn(Map<String, dynamic> hymn) {
     icon: const Icon(Icons.arrow_back),
     onPressed: () => Navigator.pop(context),
   ),
-  title: Text('Page ${currentIndex + 1}/${widget.allDocs.length}', style: TextStyle(fontSize: 14, color: Colors.grey.shade300)),
+                                                    title: Text(
+                        'Page ${widget.pageNumbers[widget.allDocs[currentIndex].id]}',
+                        style: TextStyle(
+                          fontSize: 14,
+                          color: Colors.grey.shade300,
+                        ),
+                      ),
   backgroundColor: Theme.of(context).colorScheme.inversePrimary,
   actions: [
-    IconButton(
-      icon: const Icon(Icons.share),
-      onPressed: () => _shareHymn(widget.hymn),
-    ),
-  ],
+  IconButton(
+    icon: const Icon(Icons.share),
+    onPressed: () {
+      final doc = widget.allDocs[currentIndex];
+      final hymn = doc.data() as Map<String, dynamic>;
+      _shareHymn(hymn);
+    },
+  ),
+],
 ),
-      body: PageView.builder(
+            body: PageView.builder(
         controller: _pageController,
         onPageChanged: (index) => setState(() => currentIndex = index),
         itemCount: widget.allDocs.length,
         itemBuilder: (context, index) {
-          final doc = widget.allDocs[index];
-          final hymn = Map<String, dynamic>.from(doc.data() as Map);
-          hymn['id'] = doc.id;
-          return _buildHymnPage(hymn, doc.id);
+                          final doc = widget.allDocs[index];
+                          final hymn = Map<String, dynamic>.from(doc.data() as Map);
+
+                          hymn['id'] = doc.id;
+                          hymn['pageNumber'] = index + 1;
+                          return _buildHymnPage(hymn, doc.id);
         },
-      ),
+     ),
     );
   }
-}
+  }
