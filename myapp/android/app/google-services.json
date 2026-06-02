@@ -14,6 +14,14 @@
       },
       "oauth_client": [
         {
+          "client_id": "726415460666-1puha4g4ph6vulvnd9mo4830svqacfn4.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.zion.hymns",
+            "certificate_hash": "553c7ce8429fe3f11e97b1c57df7cb15ba8ac802"
+          }
+        },
+        {
           "client_id": "726415460666-fukq77ut3uvju5nhgifbl4evem6gphld.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
